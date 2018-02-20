@@ -1,0 +1,15 @@
+{
+  "name": "garage",
+  "version": "0.0.1",
+  "description": "iot garage door lock and opener for raspberry pi",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "John Erhardt",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.2",
+    "jsonwebtoken": "^8.1.1"
+  }
+}
