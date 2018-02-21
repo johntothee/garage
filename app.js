@@ -24,6 +24,8 @@ app.get('/api/garage', function (req, res) {
     var response = processJwt(res, jwtParam);
 
     // valid commands to start are: verify, open-close
+    // @todo: add correct response for verify command
+    // @todo: open command triggers lock and opener pins
     res.send('Welcome to the garage. reponse: ' + response);
   }
 });
@@ -57,11 +59,3 @@ function processJwt(res, token) {
   console.log('command: ' + response.command);
   return response.command;
 }
-
-//reject if not correct
-
-//if correct check command
-
-//verify command, just respond with 'yes'
-
-//or is open/close command
