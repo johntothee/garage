@@ -2,13 +2,22 @@ const fs = require('fs');
 var jwt = require('jsonwebtoken');
 var express = require('express');
 var app = express();
-const apiKey = "RCQgNWxAbhnsdptutvNVUWjwq4Xfrj";
+
+try {
+  var apiKey = fs.readFileSync('./keys/api_key.txt');
+}
+catch(error) {
+  console.log(error);
+}
+// Strip off EOF character.
+apiKey = apiKey.slice(0, -1);
 
 app.get('/api/garage', function (req, res) {
-  // Limit requests by apiKey to limit drivebys
+  // Limit requests by apiKey to limit DOS
   var apiParam = req.query.apikey;
+
   if (apiParam != apiKey) {
-    res.status(404).send('Sorry, we cannot find that!');
+    res.status(403).send('Sorry, access is forbidden!');
   }
   else {
     var jwtParam = req.query.token;
@@ -26,9 +35,22 @@ app.listen(3000, function () {
 function processJwt(res, token) {
   // need uid from payload to user correct public key
   var decoded = jwt.decode(token, {complete: true});
+  if (decoded == null) {
+    return false;
+  }
+
   var user = decoded.payload.uid;
-  // @todo: first check file exists and user is only a string
-  var cert = fs.readFileSync('./keys/' + user + '-public.pem');
+  if (user == null) {
+    return false;
+  }
+
+  try {
+    var cert = fs.readFileSync('./keys/' + user + '-public.pem');
+  }
+  catch(error) {
+    console.log(error);
+    return false;
+  }
 
   // verify token
   var response = jwt.verify(token, cert);
