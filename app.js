@@ -38,13 +38,16 @@ function processJwt(res, token) {
   // need uid from payload to user correct public key
   var decoded = jwt.decode(token, {complete: true});
   if (decoded == null) {
+    console.log('token not decoded');
     return false;
   }
 
   var user = decoded.payload.uid;
   if (user == null) {
+    console.log('no uid in payload');
     return false;
   }
+  user = parseInt(user);
 
   try {
     // get user's public key
@@ -60,7 +63,7 @@ function processJwt(res, token) {
     var response = jwt.verify(token, cert, {maxAge: '2m'});
   }
   catch (error) {
-    console.log(error);
+    console.log('error: ' + error);
     return false;
   }
   console.log('command: ' + response.command);
