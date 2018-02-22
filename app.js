@@ -4,7 +4,7 @@ var express = require('express');
 var app = express();
 
 try {
-  var apiKey = fs.readFileSync('./keys/api_key.txt');
+  var apiKey = fs.readFileSync('./keys/api_key.txt').toString('utf-8');
 }
 catch(error) {
   console.log(error);
@@ -13,10 +13,10 @@ catch(error) {
 apiKey = apiKey.slice(0, -1);
 
 app.get('/api/garage', function (req, res) {
-  // Limit requests by apiKey to limit DOS
+  // Limit requests by apiKey to limit lurkers, DOS
   var apiParam = req.query.apikey;
 
-  if (apiParam != apiKey) {
+  if (apiParam !== apiKey) {
     res.status(403).send('Sorry, access is forbidden!');
   }
   else {
@@ -25,7 +25,7 @@ app.get('/api/garage', function (req, res) {
 
     // valid commands to start are: verify, open-close
     // @todo: add correct response for verify
-    // @todo: open-close triggers lock and opener pins
+    // @todo: open-close triggers lock and opener GPIO pins
     res.send('Welcome to the garage. reponse: ' + response);
   }
 });
@@ -37,7 +37,7 @@ app.listen(3000, function () {
 function processJwt(res, token) {
   // need uid from payload to user correct public key
   var decoded = jwt.decode(token, {complete: true});
-  if (decoded == null) {
+  if (decoded === null) {
     console.log('token not decoded');
     return false;
   }

@@ -5,13 +5,13 @@ genJwt.js is a helper file to generate test keys for a user.
 
 Next steps are to configure GPIO pins and wire up relays. The lock is expected to work with a 120VAC solenoid and metal pin that will block the path of a garage door's rollers.
 
-An iOS app has alos been started to generate keys, send the server the public key, and send signed open-close requests.
+An iOS app has also been started twhich will generate keys, share the public key, and send signed open-close requests.
 
 Needed info to setup:
 API Key - random string of characters saved to ./keys/api_key.txt 
 Each request will have this query parameter, and will be checked first. This is mainly to keep lurkers away.
 
-IP Address and port - to access the raspberry pi. If one's ip address isn't static a Dynamic Domain Name System could be used instead. You'll also need to forward the port in your router and/or modem.
+IP Address and port - to access the raspberry pi. If one's ip address isn't static a Dynamic Domain Name System service could be used instead. You'll also need to forward the port in your router and/or modem.
 
 User ID - any integer to identify users.
 
@@ -21,8 +21,8 @@ A number of node packages are defined in package.json. Install them with `npm in
 
 This application can be run from the command line with `node app.js`
 
-To test generate a token with `node genJwt.js` From a web browser the url takes the following format: http://[IP]:[PORT]/api/garage?apikey=[API_KEY]&token=[JWT_TOKEN]
+To generate a test token use `node genJwt.js`. From a web browser the url takes the "format: http://[IP]:[PORT]/api/garage?apikey=[API_KEY]&token=[JWT_TOKEN]"
 A response including the word 'verify' is successful. 
 
 Security info:
-We're using jwt tokens with the RS256 algorithm for extra security. Only the private key can sign tokens for which verification can only be done with the matching public key. Tokens also expire after two minutes. Even if one were to get a copy of a token and, it would soon be invalid. Communicating over https provides further protection.
+We're using jwt tokens with the RS256 algorithm for extra security. Only the private key can sign tokens for which verification can only be done with the matching public key. Tokens also expire after two minutes. Even if one were to get a copy of a token it would soon be invalid. Communicating over https would provide further protection.
