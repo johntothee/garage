@@ -45,7 +45,7 @@ app.get('/api/garage', function (req, res) {
         break;
 
       case 'open-close':
-        openCloseDoor();
+        openCloseDoor(res);
         break;
 
       default:
@@ -94,7 +94,7 @@ function processJwt(res, token) {
   return response.command;
 }
 
-function openCloseDoor() {
+function openCloseDoor(res) {
   // Don't run this if not on rpi.
   if (!prodMode) {
     return false;
