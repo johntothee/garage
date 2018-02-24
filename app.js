@@ -14,8 +14,8 @@ catch(error) {
 if (prodMode) {
   // Only setup GPIO if running on a raspberry pi board.
   var gpio = require('onoff').Gpio;
-  var lock = new Gpio(17, 'out', 'none', {'activeLow': true});
-  var opener = new Gpio(27, 'out', 'none', {'activeLow': true});
+  var lock = new gpio(17, 'out', 'none', {'activeLow': true});
+  var opener = new gpio(27, 'out', 'none', {'activeLow': true});
 }
 
 try {
