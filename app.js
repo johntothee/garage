@@ -27,11 +27,9 @@ catch(error) {
 }
 // Strip off EOF character.
 apiKey = apiKey.slice(0, -1);
-
 app.get('/api/garage', function (req, res) {
   // Limit requests by apiKey to limit lurkers, DOS
   var apiParam = req.query.apikey;
-
   if (apiParam !== apiKey) {
     res.status(403).send('Sorry, access is forbidden!');
   }
@@ -103,6 +101,7 @@ function openCloseDoor() {
   }
 
   // Unlock and open.
+  console.log('unlock and open garage door.');
   lock.writeSync(1);
   opener.writeSync(1);
   setTimeout(function () {
@@ -113,6 +112,8 @@ function openCloseDoor() {
     // Keep unlocked while garage door is in operation, > 13 seconds.
     lock.writeSync(0);
   }, 15000);
+  console.log('sequence complete.');
+  res.send('OK');
 }
 
 // @todo: Need a listener for manual button press.
