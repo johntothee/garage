@@ -16,6 +16,9 @@ if (prodMode) {
   var gpio = require('onoff').Gpio;
   var lock = new gpio(17, 'out', 'none', {'activeLow': true});
   var opener = new gpio(27, 'out', 'none', {'activeLow': true});
+  // Force pins inactive (high) to start.
+  lock.writeSync(0);
+  opener.writeSync(0);
 }
 
 try {
