@@ -4,6 +4,22 @@ var express = require('express');
 var app = express();
 
 try {
+  // A simple text file indicates if this environment has GPIO pins
+  var prodMode = fs.readFileSync('./keys/prod.txt').toString('utf-8');
+}
+catch(error) {
+  console.log('Running in non-raspberry pi mode');
+}
+
+if (prodMode) {
+  // Only setup GPIO if running on a raspberry pi board.
+  var gpio = require('onoff').Gpio;
+  var lock = new Gpio(17, 'out', 'none', {'activeLow': true});
+  var opener = new Gpio(27, 'out', 'none', {'activeLow': true});
+}
+
+try {
+  // Get the API Key from file.
   var apiKey = fs.readFileSync('./keys/api_key.txt').toString('utf-8');
 }
 catch(error) {
@@ -23,10 +39,20 @@ app.get('/api/garage', function (req, res) {
     var jwtParam = req.query.token;
     var response = processJwt(res, jwtParam);
 
-    // valid commands to start are: verify, open-close
-    // @todo: add correct response for verify
-    // @todo: open-close triggers lock and opener GPIO pins
-    res.send('Welcome to the garage. reponse: ' + response);
+    switch (response) {
+      // valid commands to start are: verify, open-close
+      case 'verify':
+        // @todo: add correct response for verify
+        res.send('Welcome to the garage. reponse: ' + response);
+        break;
+
+      case 'open-close':
+        openCloseDoor();
+        break;
+
+      default;
+        res.send('No valid command found.');
+    }
   }
 });
 
@@ -69,3 +95,24 @@ function processJwt(res, token) {
   console.log('command: ' + response.command);
   return response.command;
 }
+
+function openCloseDoor() {
+  // Don't run this if not on rpi.
+  if (!prodMode) {
+    return false;
+  }
+
+  // Unlock and open.
+  lock.writeSync(1);
+  opener.writeSync(1);
+  setTimeout(function () {
+    // Open button only needs half a second.
+    opener.writeSync(0);
+  }, 500);
+  setTimeout(function () {
+    // Keep unlocked while garage door is in operation, > 13 seconds.
+    lock.writeSync(0);
+  }, 15000);
+}
+
+// @todo: Need a listener for manual button press.

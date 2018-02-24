@@ -5,7 +5,7 @@ genJwt.js is a helper file to generate test keys for a user.
 
 Next steps are to configure GPIO pins and wire up relays. The lock is expected to work with a 120VAC solenoid and metal pin that will block the path of a garage door's rollers.
 
-An iOS app has also been started twhich will generate keys, share the public key, and send signed open-close requests.
+An iOS app has also been started which will generate keys, share the public key, and send signed open-close requests.
 
 Needed info to setup:
 API Key - random string of characters saved to ./keys/api_key.txt 
