@@ -50,7 +50,7 @@ app.get('/api/garage', function (req, res) {
         openCloseDoor();
         break;
 
-      default;
+      default:
         res.send('No valid command found.');
     }
   }
