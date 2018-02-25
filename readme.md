@@ -26,7 +26,7 @@ When complete I'll include drawings and/or wiring diagrams.
 
 This application can be run from the command line with `node app.js`
 
-To generate a test token use `node genJwt.js`. From a web browser the url takes the format: "http://[IP]:[PORT]/api/garage?apikey=[API_KEY]&token=[JWT_TOKEN]"
+To generate a test token use `node genJwt.js [USERID] [COMMAND]`. From a web browser the url takes the format: "http://[IP]:[PORT]/api/garage?apikey=[API_KEY]&token=[JWT_TOKEN]"
 A response including the word 'verify' is successful. 
 
 Security info:
