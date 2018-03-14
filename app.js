@@ -1,4 +1,5 @@
 const fs = require('fs');
+const https = require("https");
 var jwt = require('jsonwebtoken');
 var express = require('express');
 var app = express();
@@ -19,6 +20,18 @@ if (prodMode) {
   // Force pins inactive (high) to start.
   lock.writeSync(0);
   opener.writeSync(0);
+
+  // Manual button
+  var gpio4 = gpio.export(4, {
+    direction: "in",
+    ready: function() {
+    }
+  });
+  gpio4.on("change", function(val) {
+    // value will report either 1 or 0 (number) when the value changes
+    console.log(val);
+    openCloseDoor(null);
+  });
 }
 
 try {
@@ -57,6 +70,11 @@ app.get('/api/garage', function (req, res) {
   }
 });
 
+const options = {
+  key: fs.readFileSync("./keys/key.pem"),
+  cert: fs.readFileSync("./keys/cert.pem")
+};
+app = https.createServer(options, app);
 app.listen(3000, function () {
   console.log('Garage app listening on port 3000!');
 });
@@ -116,7 +134,8 @@ function openCloseDoor(res) {
     lock.writeSync(0);
   }, 15000);
   console.log('sequence complete.');
-  res.send('OK');
+  if (res) {
+    res.send('OK');
+  }
 }
 
-// @todo: Need a listener for manual button press.
