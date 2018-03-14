@@ -28,7 +28,7 @@ if (prodMode) {
       throw err;
     }
     if (value == 0) {
-      console.log(val);
+      console.log(value);
       openCloseDoor(null);
     }
   });
