@@ -22,11 +22,15 @@ if (prodMode) {
   opener.writeSync(0);
 
   // Manual button
-  var gpio4 = gpio(4, 'in', 'none', {'activeLow': true});
-  gpio4.on("change", function(val) {
-    // value will report either 1 or 0 (number) when the value changes
-    console.log(val);
-    openCloseDoor(null);
+  var gpio4 = gpio(4, 'in', 'falling', {'activeLow': true});
+  gpio4.watch(function (err, value) {
+    if (err) {
+      throw err;
+    }
+    if (value == 0) {
+      console.log(val);
+      openCloseDoor(null);
+    }
   });
 }
 
