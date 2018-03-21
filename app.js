@@ -1,8 +1,21 @@
+#!/usr/bin/env node
+
 const fs = require('fs');
 const https = require("https");
 var jwt = require('jsonwebtoken');
 var express = require('express');
 var app = express();
+var sqlite3 = require('sqlite3').verbose();
+var db = new sqlite3.Database(':memory:');
+
+db.serialize(function() {
+  db.run("CREATE TABLE timestamp (t INT)");
+  // Initialize table.
+  var stmt = db.prepare("INSERT INTO timestamp VALUES (?)");
+  var timestamp = Math.floor(Date.now() / 1000);
+  stmt.run(timestamp);
+  stmt.finalize();
+});
 
 try {
   // A simple text file indicates if this environment has GPIO pins
@@ -22,14 +35,28 @@ if (prodMode) {
   opener.writeSync(0);
 
   // Manual button
-  var gpio4 = gpio(4, 'in', 'falling', {'activeLow': true});
-  gpio4.watch(function (err, value) {
+  var button = gpio(4, 'in', 'falling', {'activeLow': true});
+  button.watch(function(err, value) {
     if (err) {
       throw err;
     }
     if (value == 0) {
       console.log(value);
       openCloseDoor(null);
+    }
+  });
+
+  // Sensor to send message if door opened for unknown reason.
+  var sensor = gpio(3, 'in', 'rising', {'activeLow': true});
+  sensor.watch(function(err, value) {
+    if (err) {
+      throw err;
+    }
+    if (value == 1) {
+      var timestamp = Math.floor(Date.now() / 1000); 
+      console.log('detected open door at ' + timestamp);
+      // Get time of last openClose event and compare.
+      compareTimeStamp(timestamp);
     }
   });
 }
@@ -43,6 +70,8 @@ catch(error) {
 }
 // Strip off EOF character.
 apiKey = apiKey.slice(0, -1);
+
+// Main listen function
 app.get('/api/garage', function (req, res) {
   // Limit requests by apiKey to limit lurkers, DOS
   var apiParam = req.query.apikey;
@@ -54,7 +83,7 @@ app.get('/api/garage', function (req, res) {
     var response = processJwt(res, jwtParam);
 
     switch (response) {
-      // valid commands to start are: verify, open-close
+      // valid commands are: verify, open-close
       case 'verify':
         // @todo: add correct response for verify
         res.send('Welcome to the garage. reponse: ' + response);
@@ -70,7 +99,9 @@ app.get('/api/garage', function (req, res) {
   }
 });
 
+// Setup https.
 const options = {
+  // get these from lets-encrypt
   key: fs.readFileSync("./keys/key.pem"),
   cert: fs.readFileSync("./keys/cert.pem")
 };
@@ -123,6 +154,8 @@ function openCloseDoor(res) {
 
   // Unlock and open.
   console.log('unlock and open garage door.');
+  // Save timestamp of this event.
+  writeTimestamp();
   lock.writeSync(1);
   opener.writeSync(1);
   setTimeout(function () {
@@ -133,9 +166,28 @@ function openCloseDoor(res) {
     // Keep unlocked while garage door is in operation, > 13 seconds.
     lock.writeSync(0);
   }, 15000);
-  console.log('sequence complete.');
   if (res) {
     res.send('OK');
   }
 }
 
+function writeTimestamp() {
+  db.serialize(function() {
+    var stmt = db.prepare("INSERT INTO timestamp VALUES (?)");
+    var timestamp = Math.floor(Date.now() / 1000);
+    stmt.run(timestamp);
+    stmt.finalize();
+  }); 
+}
+
+function compareTimeStamp(nowTimeStamp) {
+  db.each("SELECT t FROM timestamp ORDER BY rowid LIMIT 1", function(err, row) {
+    if (err) throw err;          
+    if (row) {
+      if ((nowTimeStamp - row.t) > 120) {
+        // Send warning message
+        console.log("need to send a warning message that door is open.");
+      }
+    }
+  });
+}
