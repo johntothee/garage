@@ -7,6 +7,7 @@ var express = require('express');
 var app = express();
 var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database('./db/garage.db');
+var twilio = require('twilio');
 
 db.serialize(function() {
   // Initialize table.
@@ -25,6 +26,13 @@ try {
 catch(error) {
   console.log('Running in non-raspberry pi mode');
 }
+
+// Twilio credenials in text files.
+var accountSid = readFile(fs, 'accountSid.txt');
+var authToken = readFile(fs, 'authToken.txt');
+var to = readFile(fs, 'to.txt');
+var from = readFile(fs, 'from.txt');
+var client = new twilio(accountSid, authToken);
 
 if (prodMode) {
   // Only setup GPIO if running on a raspberry pi board.
@@ -186,7 +194,6 @@ function writeTimestamp() {
 
 // Compare nowTimeStamp to last open-close timestamp.
 // More than 120 seconds different should send a message.
-// @TODO: add twilio api to send a text message.
 function compareTimeStamp(nowTimeStamp) {
   var db = new sqlite3.Database('./db/garage.db');
   db.each("SELECT t FROM timestamp ORDER BY rowid DESC LIMIT 1", function(err, row) {
@@ -198,8 +205,31 @@ function compareTimeStamp(nowTimeStamp) {
       if ((nowTimeStamp - row.t) > 120) {
         // Send warning message
         console.log("need to send a warning message that door is open.");
+        var date = new Date(nowTimeStamp * 1000);
+        var hours = date.getHours();
+        var minutes = "0" + date.getMinutes();
+        var seconds = "0" + date.getSeconds();
+        var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+        client.messages.create({
+          body: 'The garage door opened at ' + formattedTime,
+          to: to,  // Text this number
+          from: from // From a valid Twilio number
+        })
+        .then((message) => console.log(message.sid));
       }
     }
   });
   db.close();
+}
+
+function readFile(fs, filename) {
+  try {
+    // Get the Twilio accountSid from file.
+    var text = fs.readFileSync('./keys/' + filename).toString('utf-8');
+  }
+  catch(error) {
+    console.log(error);
+  }
+  // Strip off EOF character.
+  return text.slice(0, -1);
 }
