@@ -6,16 +6,17 @@ var jwt = require('jsonwebtoken');
 var express = require('express');
 var app = express();
 var sqlite3 = require('sqlite3').verbose();
-var db = new sqlite3.Database(':memory:');
+var db = new sqlite3.Database('./db/garage.db');
 
 db.serialize(function() {
-  db.run("CREATE TABLE timestamp (t INT)");
   // Initialize table.
+  // db.run("CREATE TABLE timestamp (t INT)");
   var stmt = db.prepare("INSERT INTO timestamp VALUES (?)");
   var timestamp = Math.floor(Date.now() / 1000);
   stmt.run(timestamp);
   stmt.finalize();
 });
+db.close();
 
 try {
   // A simple text file indicates if this environment has GPIO pins
@@ -171,17 +172,27 @@ function openCloseDoor(res) {
   }
 }
 
+// Write current time to db as an open-close event.
 function writeTimestamp() {
+  var db = new sqlite3.Database('./db/garage.db');
   db.serialize(function() {
     var stmt = db.prepare("INSERT INTO timestamp VALUES (?)");
     var timestamp = Math.floor(Date.now() / 1000);
     stmt.run(timestamp);
     stmt.finalize();
   }); 
+  db.close();
 }
 
+// Compare nowTimeStamp to last open-close timestamp.
+// More than 120 seconds different should send a message.
+// @TODO: add twilio api to send a text message.
 function compareTimeStamp(nowTimeStamp) {
-  db.each("SELECT t FROM timestamp ORDER BY rowid LIMIT 1", function(err, row) {
+  var db = new sqlite3.Database('./db/garage.db');
+  db.each("SELECT t FROM timestamp ORDER BY rowid DESC LIMIT 1", function(err, row) {
+    console.log("comparison:");
+    console.log(nowTimeStamp);
+    console.log(row.t);
     if (err) throw err;          
     if (row) {
       if ((nowTimeStamp - row.t) > 120) {
@@ -190,4 +201,5 @@ function compareTimeStamp(nowTimeStamp) {
       }
     }
   });
+  db.close();
 }
