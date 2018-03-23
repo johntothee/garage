@@ -45,19 +45,19 @@ if (jsonConfig.rpi) {
   opener.writeSync(0);
 
   // Manual button
-  var button = gpio(4, 'in', 'falling', {'activeLow': true});
+  var button = gpio(22, 'in', 'rising', {'activeLow': false});
   button.watch(function(err, value) {
     if (err) {
       throw err;
     }
-    if (value == 0) {
+    if (value == 1) {
       console.log(value);
       openCloseDoor(null);
     }
   });
 
   // Sensor to send message if door opened for unknown reason.
-  var sensor = gpio(3, 'in', 'rising', {'activeLow': true});
+  var sensor = gpio(3, 'in', 'falling', {'activeLow': true});
   sensor.watch(function(err, value) {
     if (err) {
       throw err;

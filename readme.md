@@ -31,3 +31,13 @@ A response including the word 'verify' is successful. The payload of the jwt has
 
 Security info:
 We're using jwt tokens with the RS256 algorithm for extra security. A private key signs tokens for which verification can only be done with the matching public key. Tokens older than two minutes are rejected. Even if one were to get a copy of a token it would soon be invalid. Communicating over https provides further protection.
+
+./keys/config.json uses the following format:
+{
+  "rpi": false,
+  "apiKey":  "API KEY string",
+  "authToken": "TWILIO AUTH TOKEN",
+  "accountSid": "TWILIO ACCOUNT SID",
+  "from": "FROM TWILIO NUMBER",
+  "to": "PHONE NUMBER TO SEND SMS"
+}
