@@ -21,20 +21,21 @@ db.close();
 
 try {
   // A simple text file indicates if this environment has GPIO pins
-  var prodMode = fs.readFileSync('./keys/prod.txt').toString('utf-8');
+  var config = fs.readFileSync('./keys/config.json');
+  var jsonConfig = JSON.parse(config);
 }
 catch(error) {
+  console.log('No config.json file');
+}
+
+if (jsonConfig.rpi == false) {
   console.log('Running in non-raspberry pi mode');
 }
 
-// Twilio credenials in text files.
-var accountSid = readFile(fs, 'accountSid.txt');
-var authToken = readFile(fs, 'authToken.txt');
-var to = readFile(fs, 'to.txt');
-var from = readFile(fs, 'from.txt');
-var client = new twilio(accountSid, authToken);
+// Twilio credenials in config.
+var client = new twilio(jsonConfig.accountSid, jsonConfig.authToken);
 
-if (prodMode) {
+if (jsonConfig.rpi) {
   // Only setup GPIO if running on a raspberry pi board.
   var gpio = require('onoff').Gpio;
   var lock = new gpio(17, 'out', 'none', {'activeLow': true});
@@ -70,21 +71,11 @@ if (prodMode) {
   });
 }
 
-try {
-  // Get the API Key from file.
-  var apiKey = fs.readFileSync('./keys/api_key.txt').toString('utf-8');
-}
-catch(error) {
-  console.log(error);
-}
-// Strip off EOF character.
-apiKey = apiKey.slice(0, -1);
-
 // Main listen function
 app.get('/api/garage', function (req, res) {
   // Limit requests by apiKey to limit lurkers, DOS
   var apiParam = req.query.apikey;
-  if (apiParam !== apiKey) {
+  if (apiParam !== jsonConfig.apiKey) {
     res.status(403).send('Sorry, access is forbidden!');
   }
   else {
@@ -157,7 +148,7 @@ function processJwt(res, token) {
 
 function openCloseDoor(res) {
   // Don't run this if not on rpi.
-  if (!prodMode) {
+  if (!jsonConfig.rpi) {
     return false;
   }
 
@@ -212,8 +203,8 @@ function compareTimeStamp(nowTimeStamp) {
         var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
         client.messages.create({
           body: 'The garage door opened at ' + formattedTime,
-          to: to,  // Text this number
-          from: from // From a valid Twilio number
+          to: jsonConfig.to,  // Text this number
+          from: jsonConfig.from // From a valid Twilio number
         })
         .then((message) => console.log(message.sid));
       }
@@ -222,14 +213,3 @@ function compareTimeStamp(nowTimeStamp) {
   db.close();
 }
 
-function readFile(fs, filename) {
-  try {
-    // Get the Twilio accountSid from file.
-    var text = fs.readFileSync('./keys/' + filename).toString('utf-8');
-  }
-  catch(error) {
-    console.log(error);
-  }
-  // Strip off EOF character.
-  return text.slice(0, -1);
-}
