@@ -1,9 +1,13 @@
 Garage is an internet of things garage door lock and opener for the 
-raspberry pi. It uses nodejs and jwt to receive signed tokens to command a garage door to unlock and then trigger the opener. This is work in progress.
+raspberry pi. It uses nodejs and jwt to receive signed tokens to command a garage door to unlock and then trigger the opener. I've now got this partially installed in my garage.
 
-When a token is verified and the open-close command is received, GPIO pin 17 will go active low to trigger the lock solenoid. Then GPIO pin 27 will go active low for half a second triggering the opener. 15 seconds later GPIO pin 17 will go inactive releasing the lock solenoid. You could use any GPIO pins, but these are right next to each other and a ground pin. They are also not shared with any other functionality.
+When a token is verified and the open-close command is received, GPIO 17 (pin 11) will go active low to trigger the lock solenoid. Then GPIO 27 (pin 13) will go active low for half a second triggering the opener. 15 seconds later GPIO pin 17 will go inactive releasing the lock solenoid. You could use any GPIO pins, but these are right next to each other and a ground pin.
 
-Next steps are to wire up relays and lock solenoid. The lock is expected to work with a 120VAC solenoid and metal pin that will block the path of a garage door's rollers. A sensor to detect when the garage door is opened for an unknown reason will also be added. Using Twilio, an SMS message will be sent.
+GPIO 22 (pin 15) will also trigger the lock and opener. This pin has an internal pull down. It it intended that this and 3v3 Power (pin 1) get connected to one's existing opener button to manually open/close. 
+
+The lock is expected to work with a 120VAC solenoid and metal rod that will block the path of a garage door's rollers. 
+
+A sensor to detect when the garage door is opened for an unknown reason will also be added. Using Twilio, an SMS message will be sent.
 
 An iOS app has also been started which will generate keys, and send signed open-close requests.
 
