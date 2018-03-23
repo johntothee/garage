@@ -1,5 +1,5 @@
 Garage is an internet of things garage door lock and opener for the 
-raspberry pi. It uses nodejs and jwt to receive signed tokens to command a garage door to unlock and then trigger the opener. I've now got this partially installed in my garage.
+raspberry pi. It uses nodejs and jwt to receive signed tokens to command a garage door to unlock and then trigger the opener. I've now got this partially installed in my garage - only missing the physical sensor.
 
 When a token is verified and the open-close command is received, GPIO 17 (pin 11) will go active low to trigger the lock solenoid. Then GPIO 27 (pin 13) will go active low for half a second triggering the opener. 15 seconds later GPIO pin 17 will go inactive releasing the lock solenoid. You could use any GPIO pins, but these are right next to each other and a ground pin.
 
