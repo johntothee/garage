@@ -62,7 +62,7 @@ if (jsonConfig.rpi) {
     if (err) {
       throw err;
     }
-    if (value == 1) {
+    if (value == 0) {
       var timestamp = Math.floor(Date.now() / 1000); 
       console.log('detected open door at ' + timestamp);
       // Get time of last openClose event and compare.
