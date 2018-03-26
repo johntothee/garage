@@ -9,18 +9,6 @@ var sqlite3 = require('sqlite3').verbose();
 var db = new sqlite3.Database('./db/garage.db');
 var twilio = require('twilio');
 
-db.serialize(function() {
-  var stmt = db.prepare("INSERT INTO timestamp VALUES (?)");
-  var timestamp = Math.floor(Date.now() / 1000);
-  stmt.run(timestamp);
-  stmt.finalize();
-
-  var stmt = db.prepare("INSERT INTO sms VALUES (?)");
-  var timestamp = 0;
-  stmt.run(timestamp);
-  stmt.finalize();
-});
-
 try {
   // A simple text file indicates if this environment has GPIO pins
   var config = fs.readFileSync('./keys/config.json');
@@ -177,7 +165,6 @@ function openCloseDoor(res) {
 
 // Write current time to db as an open-close event.
 function writeTimestamp(table) {
-  var db = new sqlite3.Database('./db/garage.db');
   db.serialize(function() {
     var stmt = db.prepare("INSERT INTO " + table + " VALUES (?)");
     var timestamp = Math.floor(Date.now() / 1000);
@@ -189,7 +176,6 @@ function writeTimestamp(table) {
 // Compare nowTimeStamp to last open-close timestamp.
 // More than 120 seconds different should send a message.
 function compareTimeStamp(nowTimeStamp) {
-  var db = new sqlite3.Database('./db/garage.db');
   db.each("SELECT t FROM timestamp ORDER BY rowid DESC LIMIT 1", function(err, row) {
     console.log("comparison:");
     console.log(nowTimeStamp);
