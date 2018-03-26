@@ -10,8 +10,6 @@ var db = new sqlite3.Database('./db/garage.db');
 var twilio = require('twilio');
 
 db.serialize(function() {
-  // Initialize table.
-  // db.run("CREATE TABLE timestamp (t INT)");
   var stmt = db.prepare("INSERT INTO timestamp VALUES (?)");
   var timestamp = Math.floor(Date.now() / 1000);
   stmt.run(timestamp);
@@ -56,7 +54,9 @@ if (jsonConfig.rpi) {
     }
   });
 
-  // Sensor to send message if door opened for unknown reason.
+  // Sensor to send message if door opens for unknown reason.
+  // GPIO3 defaults to internal pull-up. Setup magnet to be Normally Open.
+  // When door opens, switch will close to ground.
   var sensor = gpio(3, 'in', 'falling', {'activeLow': true});
   sensor.watch(function(err, value) {
     if (err) {
@@ -194,19 +194,22 @@ function compareTimeStamp(nowTimeStamp) {
     if (err) throw err;          
     if (row) {
       if ((nowTimeStamp - row.t) > 120) {
-        // Send warning message
+
+        // Send warning message - only one per 5 minutes
         console.log("need to send a warning message that door is open.");
         var date = new Date(nowTimeStamp * 1000);
         var hours = date.getHours();
         var minutes = "0" + date.getMinutes();
         var seconds = "0" + date.getSeconds();
         var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+        //@TODO: check time of last sent SMS
         client.messages.create({
           body: 'The garage door opened at ' + formattedTime,
           to: jsonConfig.to,  // Text this number
           from: jsonConfig.from // From a valid Twilio number
         })
         .then((message) => console.log(message.sid));
+        //@TODO: save SMS sent timestamp to prevent too many being sent.
       }
     }
   });
