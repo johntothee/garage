@@ -14,8 +14,12 @@ db.serialize(function() {
   var timestamp = Math.floor(Date.now() / 1000);
   stmt.run(timestamp);
   stmt.finalize();
+
+  var stmt = db.prepare("INSERT INTO sms VALUES (?)");
+  var timestamp = 0;
+  stmt.run(timestamp);
+  stmt.finalize();
 });
-db.close();
 
 try {
   // A simple text file indicates if this environment has GPIO pins
@@ -155,7 +159,7 @@ function openCloseDoor(res) {
   // Unlock and open.
   console.log('unlock and open garage door.');
   // Save timestamp of this event.
-  writeTimestamp();
+  writeTimestamp('timestamp');
   lock.writeSync(1);
   opener.writeSync(1);
   setTimeout(function () {
@@ -172,15 +176,14 @@ function openCloseDoor(res) {
 }
 
 // Write current time to db as an open-close event.
-function writeTimestamp() {
+function writeTimestamp(table) {
   var db = new sqlite3.Database('./db/garage.db');
   db.serialize(function() {
-    var stmt = db.prepare("INSERT INTO timestamp VALUES (?)");
+    var stmt = db.prepare("INSERT INTO " + table + " VALUES (?)");
     var timestamp = Math.floor(Date.now() / 1000);
     stmt.run(timestamp);
     stmt.finalize();
   }); 
-  db.close();
 }
 
 // Compare nowTimeStamp to last open-close timestamp.
@@ -192,27 +195,32 @@ function compareTimeStamp(nowTimeStamp) {
     console.log(nowTimeStamp);
     console.log(row.t);
     if (err) throw err;          
-    if (row) {
+    else if (row) {
       if ((nowTimeStamp - row.t) > 120) {
-
-        // Send warning message - only one per 5 minutes
-        console.log("need to send a warning message that door is open.");
-        var date = new Date(nowTimeStamp * 1000);
-        var hours = date.getHours();
-        var minutes = "0" + date.getMinutes();
-        var seconds = "0" + date.getSeconds();
-        var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
-        //@TODO: check time of last sent SMS
-        client.messages.create({
-          body: 'The garage door opened at ' + formattedTime,
-          to: jsonConfig.to,  // Text this number
-          from: jsonConfig.from // From a valid Twilio number
-        })
-        .then((message) => console.log(message.sid));
-        //@TODO: save SMS sent timestamp to prevent too many being sent.
+        db.each("SELECT t FROM sms ORDER BY rowid DESC LIMIT 1", function(error, times) {
+          if (error) throw error;
+          else if (times) {
+            console.log("sms timestamp value: " + times.t);
+            if ((nowTimeStamp - times.t) > 300) {
+              // Last SMS was more than 5 minutes ago. Okay to send another.
+              console.log("need to send a warning message that door is open.");
+              var date = new Date(nowTimeStamp * 1000);
+              var hours = date.getHours();
+              var minutes = "0" + date.getMinutes();
+              var seconds = "0" + date.getSeconds();
+              var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+              client.messages.create({
+                body: 'The garage door opened at ' + formattedTime,
+                to: jsonConfig.to,  // Text this number
+                from: jsonConfig.from // From a valid Twilio number
+              })
+              .then((message) => console.log(message.sid));
+              writeTimestamp('sms');
+            }
+          }
+        });
       }
     }
   });
-  db.close();
 }
 
