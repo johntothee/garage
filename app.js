@@ -164,7 +164,7 @@ function openCloseDoor(res) {
 }
 
 // Write current time to db as an open-close event.
-function writeTimestamp(table) {ß
+function writeTimestamp(table) {
   db = new sqlite3.Database('./db/garage.db');
   db.serialize(function() {
     var stmt = db.prepare("INSERT INTO " + table + " VALUES (?)");
