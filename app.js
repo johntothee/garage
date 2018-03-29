@@ -2,12 +2,12 @@
 
 const fs = require('fs');
 const https = require("https");
-var jwt = require('jsonwebtoken');
-var express = require('express');
+const jwt = require('jsonwebtoken');
+const express = require('express');
+const sqlite3 = require('sqlite3').verbose();
+const db = new sqlite3.Database('./db/garage.db');
+const twilio = require('twilio');
 var app = express();
-var sqlite3 = require('sqlite3').verbose();
-var db = new sqlite3.Database('./db/garage.db');
-var twilio = require('twilio');
 
 try {
   // A simple text file indicates if this environment has GPIO pins
@@ -23,19 +23,19 @@ if (jsonConfig.rpi == false) {
 }
 
 // Twilio credenials in config.
-var client = new twilio(jsonConfig.accountSid, jsonConfig.authToken);
+const client = new twilio(jsonConfig.accountSid, jsonConfig.authToken);
 
 if (jsonConfig.rpi) {
   // Only setup GPIO if running on a raspberry pi board.
-  var gpio = require('onoff').Gpio;
-  var lock = new gpio(17, 'out', 'none', {'activeLow': true});
-  var opener = new gpio(27, 'out', 'none', {'activeLow': true});
+  const gpio = require('onoff').Gpio;
+  const lock = new gpio(17, 'out', 'none', {'activeLow': true});
+  const opener = new gpio(27, 'out', 'none', {'activeLow': true});
   // Force pins inactive (high) to start.
   lock.writeSync(0);
   opener.writeSync(0);
 
   // Manual button
-  var button = gpio(22, 'in', 'rising', {'activeLow': false});
+  const button = gpio(22, 'in', 'rising', {'activeLow': false});
   button.watch(function(err, value) {
     if (err) {
       throw err;
@@ -49,7 +49,7 @@ if (jsonConfig.rpi) {
   // Sensor to send message if door opens for unknown reason.
   // GPIO3 defaults to internal pull-up. Setup magnet to be Normally Open.
   // When door opens, switch will close to ground.
-  var sensor = gpio(3, 'in', 'falling', {'activeLow': true});
+  const sensor = gpio(3, 'in', 'falling', {'activeLow': true});
   sensor.watch(function(err, value) {
     if (err) {
       throw err;
@@ -63,9 +63,9 @@ if (jsonConfig.rpi) {
   });
 }
 
-// Main listen function
+// Main listener
 app.get('/api/garage', function (req, res) {
-  // Limit requests by apiKey to limit lurkers, DOS
+  // Restrict requests by apiKey to limit lurkers, DOS
   var apiParam = req.query.apikey;
   if (apiParam !== jsonConfig.apiKey) {
     res.status(403).send('Sorry, access is forbidden!');
@@ -144,7 +144,7 @@ function openCloseDoor(res) {
     return false;
   }
 
-  // Unlock and open.
+  // Unlock and active garage door opener.
   console.log('unlock and open garage door.');
   // Save timestamp of this event.
   writeTimestamp('timestamp');
