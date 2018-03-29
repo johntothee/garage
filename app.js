@@ -192,19 +192,7 @@ function compareTimeStamp(nowTimeStamp) {
             console.log("sms timestamp value: " + times.t);
             if ((nowTimeStamp - times.t) > 300) {
               // Last SMS was more than 5 minutes ago. Okay to send another.
-              console.log("need to send a warning message that door is open.");
-              var date = new Date(nowTimeStamp * 1000);
-              var hours = date.getHours();
-              var minutes = "0" + date.getMinutes();
-              var seconds = "0" + date.getSeconds();
-              var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
-              client.messages.create({
-                body: 'The garage door opened at ' + formattedTime,
-                to: jsonConfig.to,  // Text this number
-                from: jsonConfig.from // From a valid Twilio number
-              })
-              .then((message) => console.log(message.sid));
-              writeTimestamp('sms');
+              sendSMS(nowTimeStamp);
             }
           }
         });
@@ -213,3 +201,19 @@ function compareTimeStamp(nowTimeStamp) {
   });
 }
 
+// Send SMS.
+function sendSMS(timestamp) {
+  console.log("need to send a warning message that door is open.");
+  var date = new Date(timestamp * 1000);
+  var hours = date.getHours();
+  var minutes = "0" + date.getMinutes();
+  var seconds = "0" + date.getSeconds();
+  var formattedTime = hours + ':' + minutes.substr(-2) + ':' + seconds.substr(-2);
+  client.messages.create({
+    body: 'The garage door opened at ' + formattedTime,
+    to: jsonConfig.to,  // Text this number
+    from: jsonConfig.from // From a valid Twilio number
+  })
+  .then((message) => console.log(message.sid));
+  writeTimestamp('sms');
+}
