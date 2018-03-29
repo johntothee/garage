@@ -5,7 +5,7 @@ const https = require("https");
 const jwt = require('jsonwebtoken');
 const express = require('express');
 const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('./db/garage.db');
+var db = new sqlite3.Database('./db/garage.db');
 const twilio = require('twilio');
 var app = express();
 
@@ -164,18 +164,21 @@ function openCloseDoor(res) {
 }
 
 // Write current time to db as an open-close event.
-function writeTimestamp(table) {
+function writeTimestamp(table) {ß
+  db = new sqlite3.Database('./db/garage.db');
   db.serialize(function() {
     var stmt = db.prepare("INSERT INTO " + table + " VALUES (?)");
     var timestamp = Math.floor(Date.now() / 1000);
     stmt.run(timestamp);
     stmt.finalize();
-  }); 
+  });
+  db.close();
 }
 
 // Compare nowTimeStamp to last open-close timestamp.
 // More than 120 seconds different should send a message.
 function compareTimeStamp(nowTimeStamp) {
+  db = new sqlite3.Database('./db/garage.db');
   db.each("SELECT t FROM timestamp ORDER BY rowid DESC LIMIT 1", function(err, row) {
     console.log("comparison:");
     console.log(nowTimeStamp);

@@ -1,5 +1,5 @@
-var sqlite3 = require('sqlite3').verbose();
-var db = new sqlite3.Database('./db/garage.db');
+const sqlite3 = require('sqlite3').verbose();
+const db = new sqlite3.Database('./db/garage.db');
 
 // Create database tables.
 db.serialize(function() {
