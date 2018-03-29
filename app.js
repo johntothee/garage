@@ -27,15 +27,15 @@ const client = new twilio(jsonConfig.accountSid, jsonConfig.authToken);
 
 if (jsonConfig.rpi) {
   // Only setup GPIO if running on a raspberry pi board.
-  const gpio = require('onoff').Gpio;
-  const lock = new gpio(17, 'out', 'none', {'activeLow': true});
-  const opener = new gpio(27, 'out', 'none', {'activeLow': true});
+  var gpio = require('onoff').Gpio;
+  var lock = new gpio(17, 'out', 'none', {'activeLow': true});
+  var opener = new gpio(27, 'out', 'none', {'activeLow': true});
   // Force pins inactive (high) to start.
   lock.writeSync(0);
   opener.writeSync(0);
 
   // Manual button
-  const button = gpio(22, 'in', 'rising', {'activeLow': false});
+  var button = gpio(22, 'in', 'rising', {'activeLow': false});
   button.watch(function(err, value) {
     if (err) {
       throw err;
@@ -49,7 +49,7 @@ if (jsonConfig.rpi) {
   // Sensor to send message if door opens for unknown reason.
   // GPIO3 defaults to internal pull-up. Setup magnet to be Normally Open.
   // When door opens, switch will close to ground.
-  const sensor = gpio(3, 'in', 'falling', {'activeLow': true});
+  var sensor = gpio(3, 'in', 'falling', {'activeLow': true});
   sensor.watch(function(err, value) {
     if (err) {
       throw err;
