@@ -55,10 +55,17 @@ if (jsonConfig.rpi) {
       throw err;
     }
     if (value == 0) {
-      var timestamp = Math.floor(Date.now() / 1000); 
-      console.log('detected open door at ' + timestamp);
-      // Get time of last openClose event and compare.
-      compareTimeStamp(timestamp);
+      console.log('sensor first detected open.');
+      setTimeout(function () {
+        // Double check sensor afer 3 seconds.
+        if (sensor.readSync() == 0) {
+          var timestamp = Math.floor(Date.now() / 1000);
+          console.log('detected open door at ' + timestamp);
+          // Get time of last openClose event and compare.
+          compareTimeStamp(timestamp);
+        }
+      }, 3000);
+
     }
   });
 }
