@@ -100,9 +100,9 @@ app.get('/api/garage', function (req, res) {
 
 // Setup https.
 const options = {
-  // get these from lets-encrypt
-  key: fs.readFileSync("./keys/key.pem"),
-  cert: fs.readFileSync("./keys/cert.pem")
+  key: fs.readFileSync('/etc/letsencrypt/live/pechardt-garage.asuscomm.com/privkey.pem'),
+  cert: fs.readFileSync('/etc/letsencrypt/live/pechardt-garage.asuscomm.com/cert.pem'),
+  ca: fs.readFileSync('/etc/letsencrypt/live/pechardt-garage.asuscomm.com/chain.pem')
 };
 app = https.createServer(options, app);
 app.listen(3000, function () {
