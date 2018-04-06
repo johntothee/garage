@@ -183,7 +183,7 @@ function writeTimestamp(table) {
 }
 
 // Compare nowTimeStamp to last open-close timestamp.
-// More than 120 seconds different should send a message.
+// More than 180 seconds different should send a message.
 function compareTimeStamp(nowTimeStamp) {
   db = new sqlite3.Database('./db/garage.db');
   db.each("SELECT t FROM timestamp ORDER BY rowid DESC LIMIT 1", function(err, row) {
@@ -192,7 +192,7 @@ function compareTimeStamp(nowTimeStamp) {
     console.log(row.t);
     if (err) throw err;          
     else if (row) {
-      if ((nowTimeStamp - row.t) > 120) {
+      if ((nowTimeStamp - row.t) > 180) {
         db.each("SELECT t FROM sms ORDER BY rowid DESC LIMIT 1", function(error, times) {
           if (error) throw error;
           else if (times) {
