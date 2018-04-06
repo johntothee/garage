@@ -1,6 +1,5 @@
-#!/usr/bin/env node
+// Run as root and update strings to generate new cert files from letsencrypt.
 
-const fs = require('fs');
 const http = require("http");
 const express = require('express');
 var app = express();
