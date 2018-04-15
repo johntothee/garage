@@ -34,7 +34,7 @@ if (jsonConfig.rpi) {
   lock.writeSync(0);
   opener.writeSync(0);
 
-  // Manual button
+  // Manual button GPIO 22 (pin 15)
   var button = gpio(22, 'in', 'rising', {'activeLow': false});
   button.watch(function(err, value) {
     if (err) {
@@ -47,7 +47,7 @@ if (jsonConfig.rpi) {
   });
 
   // Sensor to send message if door opens for unknown reason.
-  // GPIO3 defaults to internal pull-up. Setup magnet to be Normally Open.
+  // GPIO3 (pin 5) defaults to internal pull-up. Setup magnet to be Normally Open.
   // When door opens, switch will close to ground.
   var sensor = gpio(3, 'in', 'falling', {'activeLow': true});
   sensor.watch(function(err, value) {
@@ -65,7 +65,6 @@ if (jsonConfig.rpi) {
           compareTimeStamp(timestamp);
         }
       }, 3000);
-
     }
   });
 }
@@ -183,7 +182,7 @@ function writeTimestamp(table) {
 }
 
 // Compare nowTimeStamp to last open-close timestamp.
-// More than 180 seconds different should send a message.
+// More than 180 seconds difference should send a message.
 function compareTimeStamp(nowTimeStamp) {
   db = new sqlite3.Database('./db/garage.db');
   db.each("SELECT t FROM timestamp ORDER BY rowid DESC LIMIT 1", function(err, row) {
