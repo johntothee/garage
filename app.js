@@ -49,16 +49,17 @@ if (jsonConfig.rpi) {
   // Sensor to send message if door opens for unknown reason.
   // GPIO3 (pin 5) defaults to internal pull-up. Setup magnet to be Normally Open.
   // When door opens, switch will close to ground.
+  // Value of 1 for active low means active or at 0 Volts.
   var sensor = gpio(3, 'in', 'falling', {'activeLow': true});
   sensor.watch(function(err, value) {
     if (err) {
       throw err;
     }
-    if (value == 0) {
+    if (value == 1) {
       console.log('sensor first detected open.');
       setTimeout(function () {
         // Double check sensor afer 3 seconds.
-        if (sensor.readSync() == 0) {
+        if (sensor.readSync() == 1) {
           var timestamp = Math.floor(Date.now() / 1000);
           console.log('detected open door at ' + timestamp);
           // Get time of last openClose event and compare.
