@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+const GARAGE_DOOR_OPEN = 1;
+
 const fs = require('fs');
 const https = require("https");
 const jwt = require('jsonwebtoken');
@@ -49,17 +51,17 @@ if (jsonConfig.rpi) {
   // Sensor to send message if door opens for unknown reason.
   // GPIO3 (pin 5) defaults to internal pull-up. Setup magnet to be Normally Open.
   // When door opens, switch will close to ground.
-  // Value of 1 for active low means active or at 0 Volts.
+  // Value of 1 for active low means active or at ground.
   var sensor = gpio(3, 'in', 'falling', {'activeLow': true});
   sensor.watch(function(err, value) {
     if (err) {
       throw err;
     }
-    if (value == 1) {
+    if (value == GARAGE_DOOR_OPEN) {
       console.log('sensor first detected open.');
       setTimeout(function () {
         // Double check sensor afer 3 seconds.
-        if (sensor.readSync() == 1) {
+        if (sensor.readSync() == GARAGE_DOOR_OPEN) {
           var timestamp = Math.floor(Date.now() / 1000);
           console.log('detected open door at ' + timestamp);
           // Get time of last openClose event and compare.
