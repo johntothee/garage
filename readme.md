@@ -1,8 +1,5 @@
 Garage is an internet of things garage door lock and opener for the raspberry pi. It uses nodejs and jwt to receive signed tokens to command a garage door to unlock and then trigger the opener. It's currently installed in my garage.
 
-To do
-I'm getting random notifications that the door is open when it is not. These are so infrequent they are difficult to measure. This is likely due to unshielded wire of the reed switch run alongside the wire to the solenoid. I've upgraded to shielded wire, added a 4.7k-ohm pull-up and a low-pass RC filter (82ohms in series and 1000uF from input to ground). Hopefully this solves the problem.
-
 General Info
 When a token is verified and the open-close command is received, GPIO 17 (pin 11) will go active low to trigger the lock solenoid. Then GPIO 27 (pin 13) will go active low for half a second triggering the opener. 15 seconds later GPIO pin 17 will go inactive releasing the lock solenoid. You could use any GPIO pins, but these are right next to each other and a ground pin.
 
@@ -10,7 +7,7 @@ GPIO 22 (pin 15) will also trigger the lock and opener. This pin has an internal
 
 The lock is expected to work with a 120VAC solenoid and metal rod that will block the path of a garage door's rollers. 
 
-A door magnet sensor detects when the garage door is opened for an unknown reason. The sensor is wired in the Normally Closed configuration. When the matching magnet moves away the circuit closes, pulling GPIO3 (pin 5) low. Open-Close timestamps are saved to a sqlite3 database. When a door open condition is detected that time is compared to the last open-close timestamp. If it has been more than 120 seconds it is assumed this shouldn't happen and a notification should be sent. We're using Twilio. In case the magnet is placed just at the threshold of detection, when SMS messages are sent they are also timestamped. Any within 5 minutes of the last sent are ignored.
+A door magnet sensor detects when the garage door is opened for an unknown reason. The sensor is wired in the Normally Closed configuration. When the matching magnet moves away the circuit closes, pulling GPIO3 (pin 5) low.  Open-Close timestamps are saved to a sqlite3 database. When a door open condition is detected (The signal is also debounced by 3 seconds.) that time is compared to the last open-close timestamp. If it has been more than 120 seconds it is assumed this shouldn't happen and a notification should be sent. We're using Twilio. In case the magnet is placed just at the threshold of detection, when SMS messages are sent they are also timestamped. Any within 5 minutes of the last send are ignored.
 
 An iOS app has also been started which will generate keys, and send signed open-close requests. Presently keys must be generated elsewhere and the private key and other info saved to the app.
 
