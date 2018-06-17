@@ -18,6 +18,12 @@ Each request needs this query parameter and will be checked first. This is mainl
 https keys - You can get these from https://letsencrypt.org. Set the path to these files in ./keys/config.json.
 
 IP Address and port - to access the raspberry pi. If one's ip address isn't static a Dynamic Domain Name System service could be used instead. You'll also need to forward the port in your router and/or modem.
+Even after soldering on a connector for an exteral antenna, 2.4GHz wifi wasn't strong enough to reliably reach from my access point at the front of the house to my garage. So I added powerline ethernet adapters. Configuring a static IP address through that took some trial and error. This is what I needed in /etc/dhcpcd.conf:
+interface [NAME OF ETHERNET ADAPTER]
+ipv4only
+inform [STATIC IP]
+static routers=[AP IP]
+static domain_name_servers=[AP IP]
 
 User ID - any integer to identify amongst multiple users.
 
