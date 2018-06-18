@@ -43,8 +43,14 @@ if (jsonConfig.rpi) {
       throw err;
     }
     if (value == 1) {
-      console.log(value);
-      openCloseDoor(null);
+      console.log('button pressed with value = ' + value);
+      // Double check button after 3 seconds.
+      setTimeout(function () {
+        if (button.readSync() == 1) {
+          console.log('button is still pressed, open door now');
+          openCloseDoor(null);
+        }
+      }, 3000);
     }
   });
 
