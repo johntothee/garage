@@ -150,6 +150,7 @@ function processJwt(res, token) {
     return false;
   }
   console.log('command: ' + response.command);
+  console.log('user: ' + user);
   return response.command;
 }
 

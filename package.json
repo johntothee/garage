@@ -9,11 +9,13 @@
   "author": "John Erhardt",
   "license": "ISC",
   "dependencies": {
+    "audit": "0.0.6",
     "express": "^4.16.3",
     "https": "^1.0.0",
     "jsonwebtoken": "^8.2.1",
+    "npm": "^6.4.0",
     "onoff": "^1.2.0",
-    "sqlite3": "^4.0.0",
-    "twilio": "^3.15.1"
+    "sqlite3": "^4.0.2",
+    "twilio": "^3.19.1"
   }
 }

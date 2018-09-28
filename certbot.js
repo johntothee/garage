@@ -11,6 +11,11 @@ app.get('/.well-known/acme-challenge/AO6ycPphSl54CxIO7uTCHDkzohUhpoJ_x_wY2ews230
 
 });
 
+// serve static files
+// Use with 'authenticator = webroot' and 'webroot_path = [STATIC PATH]' in /etc/letsencrypt/renewal/*.conf
+app.use(express.static('static'));
+
+
 app = http.createServer(app);
 app.listen(80, function () {
   console.log('Garage app listening on port 80!');
