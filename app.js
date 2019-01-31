@@ -83,6 +83,7 @@ app.get('/api/garage', function (req, res) {
   // Restrict requests by apiKey to limit lurkers, DOS
   var apiParam = req.query.apikey;
   if (apiParam !== jsonConfig.apiKey) {
+    console.log('got bad api key request to /api/garage');
     res.status(403).send('Sorry, access is forbidden!');
   }
   else {

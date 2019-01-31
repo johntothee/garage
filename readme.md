@@ -66,7 +66,7 @@ certbot command example:
 }
 
 Certbot renewal
-Once letsencrypt has been run once manually, `certbot` or `certbot-auto` service can started to check and generate new files when a cert is due for renewal. ./certbot.js now supports serving static files. "/etc/letsencrypt/renewals/[DOMAIN_NAME].conf needs the following:
+Once letsencrypt has been run once manually, `certbot renew` or `certbot-auto` service can started to check and generate new files when a cert is due for renewal. ./certbot.js now supports serving static files. "/etc/letsencrypt/renewals/[DOMAIN_NAME].conf needs the following:
 authenticator = webroot
 webroot-path = [WEBROOT PATH]/static/
 However one needs to run `sudo node certbot.js` and the garage service needs to restart after new files are generated.
