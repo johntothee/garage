@@ -114,6 +114,7 @@ const options = {
   ca: fs.readFileSync(jsonConfig.keyPath + 'chain.pem')
 };
 app = https.createServer(options, app);
+
 app.listen(3000, function () {
   console.log('Garage app listening on port 3000!');
 });
@@ -166,7 +167,10 @@ function openCloseDoor(res) {
   // Save timestamp of this event.
   writeTimestamp('timestamp');
   lock.writeSync(1);
-  opener.writeSync(1);
+  setTimeout(function () {
+    // Delay open until lock activated for 1 sec.
+    opener.writeSync(1);
+  }, 1000);
   setTimeout(function () {
     // Open button only needs half a second.
     opener.writeSync(0);
