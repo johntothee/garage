@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "stop certbot.js" && service garage-certbot stop
+echo "restart garage" && service garage restart

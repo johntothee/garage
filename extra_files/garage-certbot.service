@@ -1,0 +1,12 @@
+[Unit]
+Description=garage-certbot
+
+[Service]
+User=root
+Group=root
+WorkingDirectory=/home/pi/garage
+ExecStart=node certbot.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

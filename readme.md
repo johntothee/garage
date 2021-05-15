@@ -65,8 +65,13 @@ certbot command example:
   "keyPath": "LOCAL PATH TO SSL CERT FILES"
 }
 
-Certbot renewal
-Once letsencrypt has been run once manually, `certbot renew` or `certbot-auto` service can started to check and generate new files when a cert is due for renewal. ./certbot.js now supports serving static files. "/etc/letsencrypt/renewals/[DOMAIN_NAME].conf needs the following:
-authenticator = webroot
-webroot-path = [WEBROOT PATH]/static/
-However one needs to run `sudo node certbot.js` and the garage service needs to restart after new files are generated.
+## Services
+extra_files/garage.service and extra_files/garage-certbot.service are sample files that can be modified and copied or moved to /etc/sytemd/system (if running a debian based linux). The run `sudo systemctl daemon-reload` for these new services to be recognized. Run `sudo systemctl enable garage.service` to allow app.js to start as a service on boot. Systemd will also try to restart the service if it ever fails.
+
+## Certbot
+To set up letsencrypt the first time, start certbot.js with `sudo node certbot.js` then run `sudo certbot certonly --manual`. It will prompt you for an email address and your domain. Next you'll get two long strings. One of these is to be created as a file in [path to garage]/.wellknown/acme-challenge/ The contents of this file will be the longer string. Certbot will wait for you to create these.
+
+## Certbot renewal
+Once letsencrypt has been run once manually, `certbot renew` or `certbot-auto` service can be started to check and generate new files when a cert is due for renewal. extra_files/YOURDOMAIN.conf is a sample certbot config file. certbot will create this but you'll likly need to modify the line that starts with 'authenticator' and add a line that starts with 'webroot_path'.
+
+You can copy extra_files/001-start-node-certbot.sh to /etc/letsencrypt/renewal-hooks/pre and extra_files/001-restart.sh to /etc/letsencrypt/renewal-hooks/post. These will start and stop certbot.js only when renewal is needed and restart app.js so it picks up the new certificate.

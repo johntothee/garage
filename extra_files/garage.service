@@ -1,0 +1,13 @@
+[Unit]
+Description=garage
+
+[Service]
+ExecStart="/home/pi/garage/app.js"
+Restart=always
+User=pi
+Group=devs
+Environment="PATH=/usr/bin:/usr/local/bin"
+WorkingDirectory=/home/pi/garage
+
+[Install]
+WantedBy=multi-user.target
