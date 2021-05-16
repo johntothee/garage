@@ -62,7 +62,10 @@ certbot command example:
   "accountSid": "TWILIO ACCOUNT SID",
   "from": "FROM TWILIO NUMBER",
   "to": "PHONE NUMBER TO SEND SMS",
-  "keyPath": "LOCAL PATH TO SSL CERT FILES"
+  "keyPath": "LOCAL PATH TO SSL CERT FILES",
+  "buttonPress": 2000,
+  "buttonDelay": 1000,
+  "unlockTime": 20000
 }
 
 ## Services
