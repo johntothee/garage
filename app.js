@@ -167,18 +167,21 @@ function openCloseDoor(res) {
   // Save timestamp of this event.
   writeTimestamp('timestamp');
   lock.writeSync(1);
+
   setTimeout(function () {
-    // Delay open until lock activated for 1 sec.
+    // Delay opener a bit after lock.
     opener.writeSync(1);
-  }, 1000);
+  }, jsonConfig.buttonDelay);
+
   setTimeout(function () {
-    // Open button only needs half a second.
+    // Plenty long simulated button press. 
     opener.writeSync(0);
-  }, 500);
+  }, jsonConfig.buttonPress);
+
   setTimeout(function () {
     // Keep unlocked while garage door is in operation, > 13 seconds.
     lock.writeSync(0);
-  }, 15000);
+  }, jsonConfig.unlockTime);
   if (res) {
     res.send('OK');
   }

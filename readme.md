@@ -1,7 +1,7 @@
 Garage is an internet of things garage door lock and opener for the raspberry pi. It uses nodejs and jwt to receive signed tokens to command a garage door to unlock and then trigger the opener. It's currently installed in my garage.
 
 General Info
-When a token is verified and the open-close command is received, GPIO 17 (pin 11) will go active low to trigger the lock solenoid. Then GPIO 27 (pin 13) will go active low for half a second triggering the opener. 15 seconds later GPIO pin 17 will go inactive releasing the lock solenoid. You could use any GPIO pins, but these are right next to each other and a ground pin.
+When a token is verified and the open-close command is received, GPIO 17 (pin 11) will go active low to trigger the lock solenoid. Then GPIO 27 (pin 13) will go active low for half a second triggering the opener. 15 seconds later GPIO pin 17 will go back to inactive releasing the lock solenoid. You could use any GPIO pins, but these are right next to each other and a ground pin. The times for simulated button press, delay from lock activation to similated button press, and time that lock is activacted are configurable in config.json
 
 GPIO 22 (pin 15) will also trigger the lock and opener. This pin has an internal pull down. It is intended that this and 3v3 Power (pin 1) get connected to one's existing opener button to manually open/close. 
 
@@ -38,7 +38,7 @@ to do the following first:
 `sudo apt-get install libsqlite3-dev`
 `sudo npm install sqlite3 --build-from-source --sqlite=/usr`
 
-The database is expected to be read and written in the directory ./db/ . This directory must be created.
+The database is expected to be read and written in the directory ./db/ . This directory must be created. To set up for the first time run `node install.js`.
 
 Relays and a solenoid. I found a board with two 5v relays locally similar to this: https://www.sainsmart.com/products/2-channel-5v-relay-module
 When complete I'll include drawings and/or wiring diagrams.
