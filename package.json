@@ -12,7 +12,7 @@
     "audit": "0.0.6",
     "express": "^4.17.1",
     "https": "^1.0.0",
-    "jsonwebtoken": "^8.5.1",
+    "jsonwebtoken": "^9.0.0",
     "npm": "^8.3.0",
     "onoff": "^1.2.0",
     "sqlite3": "^4",
