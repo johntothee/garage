@@ -37,7 +37,7 @@ if (jsonConfig.rpi) {
   opener.writeSync(0);
 
   // Manual button GPIO 22 (pin 15)
-  var button = gpio(22, 'in', 'rising', {'activeLow': false});
+  var button = new gpio(22, 'in', 'rising', {'activeLow': false});
   button.watch(function(err, value) {
     if (err) {
       throw err;
@@ -58,7 +58,7 @@ if (jsonConfig.rpi) {
   // GPIO3 (pin 5) defaults to internal pull-up. Setup magnet to be Normally Open.
   // When door opens, switch will close to ground.
   // Value of 1 for active low means active or at ground.
-  var sensor = gpio(3, 'in', 'falling', {'activeLow': true});
+  var sensor = new gpio(3, 'in', 'falling', {'activeLow': true});
   sensor.watch(function(err, value) {
     if (err) {
       throw err;
@@ -94,7 +94,7 @@ app.get('/api/garage', function (req, res) {
       // valid commands are: verify, open-close
       case 'verify':
         // @todo: add correct response for verify
-        res.send('Welcome to the garage. reponse: ' + response);
+        res.send('Welcome to the garage. response: ' + response);
         break;
 
       case 'open-close':
